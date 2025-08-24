@@ -7,8 +7,10 @@ let calendarEl = document.getElementById('calendar');
 let calendar = new Calendar(calendarEl, {
   plugins: [ dayGridPlugin, timeGridPlugin, listPlugin ],
   initialView: 'dayGridMonth',
+  initialDate: '2025-09-01',
   locale: 'es', // En español
   firstDay: 1, // Empieza en Lunes
+  fixedWeekCount : false,
   showNonCurrentDates : true, // Mostrar los días que no pertenecen al mes actual
   headerToolbar: {
     start: 'prev', // IZQ
@@ -61,15 +63,19 @@ calendar.render();
 // OCULTAR FILAS SIN EVENTOS EN LA VISTA MENSUAL
 function ocultarFilasSinEventos() {
   setTimeout(() => {
-    const filas = document.querySelectorAll('.fc-daygrid-body tr');
-    filas.forEach(fila => {
-      // Busca celdas con fondo de evento background
-      const tieneEvento = Array.from(fila.querySelectorAll('.fc-daygrid-day'))
-        .some(celda => {
-          // Busca un div con clase .fc-bg-event dentro de la celda
-          return celda.querySelector('.fc-bg-event');
-        });
-      if (!tieneEvento) {
+    const filas = Array.from(document.querySelectorAll('.fc-daygrid-body tr'));
+    // Identificar filas con eventos
+    const filasConEvento = filas.map(fila => {
+      return Array.from(fila.querySelectorAll('.fc-daygrid-day'))
+        .some(celda => celda.querySelector('.fc-bg-event'));
+    });
+    // Mantener visibles todas las filas hasta la última que tenga evento
+    let ultimaConEvento = -1;
+    for (let i = 0; i < filasConEvento.length; i++) {
+      if (filasConEvento[i]) ultimaConEvento = i;
+    }
+    filas.forEach((fila, idx) => {
+      if (idx > ultimaConEvento) {
         fila.style.display = 'none';
       } else {
         fila.style.display = '';
