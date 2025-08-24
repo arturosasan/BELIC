@@ -9,6 +9,7 @@ let calendar = new Calendar(calendarEl, {
   initialView: 'dayGridMonth',
   locale: 'es', // En español
   firstDay: 1, // Empieza en Lunes
+  showNonCurrentDates : true, // Mostrar los días que no pertenecen al mes actual
   headerToolbar: {
     start: 'prev', // IZQ
     center: 'title', // CENTRO
@@ -56,3 +57,30 @@ const allEvents = [
 calendar.addEventSource(allEvents);
 
 calendar.render();
+
+// OCULTAR FILAS SIN EVENTOS EN LA VISTA MENSUAL
+function ocultarFilasSinEventos() {
+  setTimeout(() => {
+    const filas = document.querySelectorAll('.fc-daygrid-body tr');
+    filas.forEach(fila => {
+      // Busca celdas con fondo de evento background
+      const tieneEvento = Array.from(fila.querySelectorAll('.fc-daygrid-day'))
+        .some(celda => {
+          // Busca un div con clase .fc-bg-event dentro de la celda
+          return celda.querySelector('.fc-bg-event');
+        });
+      if (!tieneEvento) {
+        fila.style.display = 'none';
+      } else {
+        fila.style.display = '';
+      }
+    });
+  }, 10);
+}
+
+// Llama a la función después de cada renderizado
+calendar.on('datesSet', ocultarFilasSinEventos);
+calendar.on('eventAdd', ocultarFilasSinEventos);
+calendar.on('eventRemove', ocultarFilasSinEventos);
+// Llamada inicial
+ocultarFilasSinEventos();
