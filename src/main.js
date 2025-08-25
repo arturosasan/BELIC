@@ -59,34 +59,3 @@ const allEvents = [
 calendar.addEventSource(allEvents);
 
 calendar.render();
-
-// OCULTAR FILAS SIN EVENTOS EN LA VISTA MENSUAL
-function ocultarFilasSinEventos() {
-  setTimeout(() => {
-    const filas = Array.from(document.querySelectorAll('.fc-daygrid-body tr'));
-    // Identificar filas con eventos
-    const filasConEvento = filas.map(fila => {
-      return Array.from(fila.querySelectorAll('.fc-daygrid-day'))
-        .some(celda => celda.querySelector('.fc-bg-event'));
-    });
-    // Mantener visibles todas las filas hasta la última que tenga evento
-    let ultimaConEvento = -1;
-    for (let i = 0; i < filasConEvento.length; i++) {
-      if (filasConEvento[i]) ultimaConEvento = i;
-    }
-    filas.forEach((fila, idx) => {
-      if (idx > ultimaConEvento) {
-        fila.style.display = 'none';
-      } else {
-        fila.style.display = '';
-      }
-    });
-  }, 10);
-}
-
-// Llama a la función después de cada renderizado
-calendar.on('datesSet', ocultarFilasSinEventos);
-calendar.on('eventAdd', ocultarFilasSinEventos);
-calendar.on('eventRemove', ocultarFilasSinEventos);
-// Llamada inicial
-ocultarFilasSinEventos();
